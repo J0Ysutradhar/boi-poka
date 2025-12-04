@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share and read PDF books online. Upload, read, and download books for free.">
+    <title>Book Sharing Platform - Read & Share Books</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4H20L28 12V28H4V4Z" stroke="url(#gradient)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M20 4V12H28" stroke="url(#gradient)" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M10 18H22M10 22H18" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" />
+                    <defs>
+                        <linearGradient id="gradient" x1="4" y1="4" x2="28" y2="28">
+                            <stop offset="0%" stop-color="#8B5CF6" />
+                            <stop offset="100%" stop-color="#3B82F6" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>BookShare</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-view="library" id="libraryBtn">
+                    <span>📚</span> Library
+                </button>
+                <button class="nav-btn" data-view="upload" id="uploadBtn">
+                    <span>⬆️</span> Upload
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Library View -->
+        <section class="view active" id="libraryView">
+            <div class="view-header">
+                <h2>Book Library</h2>
+                <div class="search-box">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" />
+                        <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search books...">
+                </div>
+            </div>
+
+            <div class="books-grid" id="booksGrid">
+                <!-- Books will be loaded here -->
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">📚</div>
+                <h3>No books yet</h3>
+                <p>Be the first to share a book with the community!</p>
+                <button class="btn btn-primary" onclick="switchView('upload')">Upload a Book</button>
+            </div>
+        </section>
+
+        <!-- Upload View -->
+        <section class="view" id="uploadView">
+            <div class="upload-container">
+                <h2>Share a Book</h2>
+                <p class="upload-subtitle">Upload PDF books to share with everyone</p>
+
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="bookNameInput">Book Name *</label>
+                        <input type="text" id="bookNameInput" placeholder="Enter book title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coverInput">Cover Image (Optional)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="coverInput" accept="image/*" hidden>
+                            <button type="button" class="file-select-btn" id="coverSelectBtn">
+                                Choose Cover Image
+                            </button>
+                            <span class="file-name" id="coverFileName">No file chosen</span>
+                        </div>
+                        <div class="cover-preview hidden" id="coverPreview">
+                            <img id="coverPreviewImg" alt="Cover preview">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fileInput">PDF File *</label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">📤</div>
+                            <h3>Drag & Drop PDF Here</h3>
+                            <p>or click to browse files</p>
+                            <input type="file" id="fileInput" accept=".pdf" hidden required>
+                            <div class="upload-info">Max file size: 50MB • PDF only</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-upload">Upload Book</button>
+                </form>
+
+                <div class="upload-progress hidden" id="uploadProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">Uploading...</p>
+                </div>
+
+                <div class="upload-result hidden" id="uploadResult">
+                    <!-- Success/Error message will appear here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PDF Reader View -->
+        <section class="view" id="readerView">
+            <div class="reader-header">
+                <button class="btn btn-secondary" id="backToLibrary">
+                    ← Back to Library
+                </button>
+                <h3 id="readerTitle" class="reader-title">Book Title</h3>
+                <div class="reader-controls">
+                    <button class="btn btn-secondary" id="downloadBtn">
+                        ⬇️ Download
+                    </button>
+                </div>
+            </div>
+
+            <div class="pdf-controls">
+                <button class="control-btn" id="prevPage">←</button>
+                <div class="page-info">
+                    <span id="pageNum">1</span> / <span id="pageCount">1</span>
+                </div>
+                <button class="control-btn" id="nextPage">→</button>
+                <div class="zoom-controls">
+                    <button class="control-btn" id="zoomOut">−</button>
+                    <span id="zoomLevel">100%</span>
+                    <button class="control-btn" id="zoomIn">+</button>
+                </div>
+            </div>
+
+            <div class="pdf-viewer" id="pdfViewer">
+                <canvas id="pdfCanvas"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
