@@ -20,7 +20,7 @@ RUN mkdir -p uploads/covers
 RUN echo '{"books": []}' > uploads/books.json
 
 # Expose port (Coolify will map this)
-EXPOSE 3000
+EXPOSE 3002
 
 # Set environment variables
 ENV NODE_ENV=production
